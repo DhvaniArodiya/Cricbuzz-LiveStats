@@ -1,16 +1,19 @@
 import streamlit as st
 import requests
-import os
 
 def fetch_recent_matches():
     url = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/recent"
 
-    # 👇 Take from Streamlit secrets in deployment, fall back to local key when running on your PC
-    api_key = st.secrets.get("RAPID_API_KEY", "5670032a90mshae1f46da8637796p14d1ccjsnf3b7630272dd")
+    # ✅ Try to read from Streamlit secrets (Cloud / local secrets.toml)
+    # ✅ If secrets are missing (local dev), fall back to hardcoded key
+    try:
+        api_key = st.secrets["RAPID_API_KEY"]
+    except Exception:
+        api_key = "5670032a90mshae1f46da8637796p14d1ccjsnf3b7630272dd"  # local dev key
 
     headers = {
         "x-rapidapi-host": "cricbuzz-cricket.p.rapidapi.com",
-        "x-rapidapi-key": api_key
+        "x-rapidapi-key": api_key,
     }
 
     try:
@@ -21,6 +24,7 @@ def fetch_recent_matches():
     except Exception as e:
         st.error(f" Error fetching recent matches: {e}")
         return []
+
 
 def app():
     st.title("📊 Live Matches")
@@ -57,10 +61,7 @@ def app():
             if "seriesAdWrapper" not in series:
                 continue
 
-            series_name = (
-                series["seriesAdWrapper"].get("seriesName")
-                or "Unnamed Series"
-            )
+            series_name = series["seriesAdWrapper"].get("seriesName") or "Unnamed Series"
             st.subheader(series_name)
 
             for match in series["seriesAdWrapper"].get("matches", []):
@@ -84,11 +85,16 @@ def app():
                         ms = match["matchScore"]
                         team1_score = ms.get("team1Score", {}).get("inngs1", {})
                         team2_score = ms.get("team2Score", {}).get("inngs1", {})
+
                         if team1_score:
-                            st.write(f"🏏 {team1}: {team1_score.get('runs', 0)}/{team1_score.get('wickets', 0)} "
-                                     f"in {team1_score.get('overs', 0)} overs")
+                            st.write(
+                                f"🏏 {team1}: {team1_score.get('runs', 0)}/{team1_score.get('wickets', 0)} "
+                                f"in {team1_score.get('overs', 0)} overs"
+                            )
                         if team2_score:
-                            st.write(f"🏏 {team2}: {team2_score.get('runs', 0)}/{team2_score.get('wickets', 0)} "
-                                     f"in {team2_score.get('overs', 0)} overs")
+                            st.write(
+                                f"🏏 {team2}: {team2_score.get('runs', 0)}/{team2_score.get('wickets', 0)} "
+                                f"in {team2_score.get('overs', 0)} overs"
+                            )
 
                     st.markdown("---")
