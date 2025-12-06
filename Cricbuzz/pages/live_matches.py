@@ -1,12 +1,18 @@
 import streamlit as st
 import requests
+import os
 
 def fetch_recent_matches():
     url = "https://cricbuzz-cricket.p.rapidapi.com/matches/v1/recent"
+
+    # 👇 Take from Streamlit secrets in deployment, fall back to local key when running on your PC
+    api_key = st.secrets.get("RAPID_API_KEY", "5670032a90mshae1f46da8637796p14d1ccjsnf3b7630272dd")
+
     headers = {
         "x-rapidapi-host": "cricbuzz-cricket.p.rapidapi.com",
-        "x-rapidapi-key": "5670032a90mshae1f46da8637796p14d1ccjsnf3b7630272dd"
+        "x-rapidapi-key": api_key
     }
+
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
