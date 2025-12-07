@@ -213,19 +213,6 @@ def app():
         except Exception as e:
             msg = str(e)
 
-            # Special handling: missing table
-            if "no such table" in msg:
-                st.error("❌ This query expects a table that doesn't exist in your current database.")
-
-                # Show which tables DO exist, for learning
-                cur = conn.cursor()
-                cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
-                existing = [r[0] for r in cur.fetchall()]
-                st.write("ℹ️ Available tables in `cricbuzz.db`:", existing)
-            else:
-                st.error(f"❌ Error running query: {e}")
-
-            # Always re-show the query so student can study it
+            st.error(f"❌ Error running query: {e}")
             st.code(query, language="sql")
-        finally:
-            conn.close()
+
