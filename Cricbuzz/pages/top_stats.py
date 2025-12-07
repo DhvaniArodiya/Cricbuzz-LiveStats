@@ -3,28 +3,33 @@ import sqlite3
 import pandas as pd
 
 def app():
-    st.title("📈 Top Stats")
-    st.markdown("View **top player performances** from the database.")
+    st.title("📈 Top Player Stats")
+    st.markdown("Simple view of top players from the `players` table in `cricbuzz.db`.")
 
-    # Connect to SQLite
-    conn = sqlite3.connect("cricbuzz.db", check_same_thread=False)
-
-    # Load players table only (it definitely exists)
+    # Connect to DB
     try:
-        players_df = pd.read_sql("SELECT * FROM players", conn)
+        conn = sqlite3.connect("cricbuzz.db", check_same_thread=False)
+        query = """
+            SELECT 
+                full_name,
+                country,
+                playing_role,
+                batting_style,
+                bowling_style
+            FROM players
+            ORDER BY full_name
+            LIMIT 50;
+        """
+        df = pd.read_sql(query, conn)
     except Exception as e:
-        st.error(f"Error loading players table: {e}")
-        conn.close()
+        st.error(f"Error loading data from database: {e}")
         return
+    finally:
+        conn.close()
 
-    conn.close()
-
-    st.subheader("Players Table (Preview)")
-    st.dataframe(players_df.head())
-
-    # Example: show count of players by role (works with any basic schema)
-    if "playing_role" in players_df.columns:
-        st.subheader("Players by Role")
-        role_counts = players_df["playing_role"].value_counts().reset_index()
-        role_counts.columns = ["Playing Role", "Count"]
-        st.bar_chart(role_counts.set_index("Playing Role"))
+    if df.empty:
+        st.warning("No player data found in the database.")
+    else:
+        st.subheader("Players (sample)")
+        # ✅ No custom width, no weird values
+        st.dataframe(df)   # <- keep this simple
