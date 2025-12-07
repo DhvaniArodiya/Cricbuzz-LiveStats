@@ -2,7 +2,7 @@ import streamlit as st
 
 from pages import live_matches, sql_queries, top_stats, crud_operations
 
-# --- STYLING ---
+# --- STYLING ---git commit -m "Fixed requirements.txt"
 st.markdown("""
     <style>
     .main-title {
@@ -31,7 +31,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
 
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("📌 Navigation")
